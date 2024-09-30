@@ -231,6 +231,12 @@ impl VeilidIrohBlobs {
     
         if let Some(result) = read.recv().await {
             println!("Received response from peer: {:?}", result);
+            println!("Response length: {}", result.len());
+
+            // Extra: Logging each byte with index for better debugging
+            for (i, byte) in result.iter().enumerate() {
+                println!("Byte {}: {}", i, byte);
+            }
             if result.len() != 1 {
                 // Log the invalid length response
                 println!("Error: Expected response length of 1, but got: {}", result.len());
