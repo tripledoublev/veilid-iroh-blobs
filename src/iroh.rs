@@ -578,8 +578,12 @@ impl VeilidIrohBlobs {
     }
 
     pub async fn get_name_from_hash(&self, collection_hash: &Hash) -> Result<String> {
+
+        println!("Fetching collection name for hash: {:?}", collection_hash);
+
         let tags = self.store.tags().await?;
-    
+        println!("Total tags found: {}", tags.len());
+        
         for tag_result in tags {
             let (tag, hash_and_format) = tag_result.map_err(|e| anyhow!("Error reading tags: {:?}", e))?;
     
