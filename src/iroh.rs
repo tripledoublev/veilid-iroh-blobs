@@ -578,14 +578,21 @@ impl VeilidIrohBlobs {
     }
 
     pub async fn get_name_from_hash(&self, collection_hash: &Hash) -> Result<String> {
-
         println!("Fetching collection name for hash: {:?}", collection_hash);
-
+    
         let tags = self.store.tags().await?;
-        println!("Total tags found: {}", tags.len());
-        
-        for tag_result in tags {
-            let (tag, hash_and_format) = tag_result.map_err(|e| anyhow!("Error reading tags: {:?}", e))?;
+        let mut count = 0; // Manual counter
+    
+        for (index, tag_result) in tags.into_iter().enumerate() {
+            count += 1; // Increment the counter for each tag
+            let (tag, hash_and_format) = tag_result.map_err(|e| anyhow!("Error reading tags at index {}: {:?}", index, e))?;
+    
+            println!(
+                "Tag {}: {:?}, Hash found: {:?}",
+                index,
+                String::from_utf8_lossy(&tag.0),
+                hash_and_format.hash
+            );
     
             // Check if the hash matches the provided collection_hash
             if hash_and_format.hash == *collection_hash {
@@ -595,8 +602,11 @@ impl VeilidIrohBlobs {
             }
         }
     
-        Err(anyhow!("Collection name not found for hash: {}", collection_hash))
+        println!("Total tags processed: {}", count); // Log the number of tags processed
+    
+        Err(anyhow!("Collection name not found for hash: {:?}", collection_hash))
     }
+    
     
     pub async fn upload_to(
         &self,
